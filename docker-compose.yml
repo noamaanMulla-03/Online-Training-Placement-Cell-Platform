@@ -1,0 +1,82 @@
+# ==============================================================================
+# Docker Compose for The Opportunity Engine (Development Environment)
+# ==============================================================================
+# This file defines and orchestrates the multi-container application.
+# It sets up the frontend, two backend services, and the database.
+# Run `docker-compose up --build` from the root directory to start.
+# ==============================================================================
+
+version: '3.8'
+
+services:
+  # 1. PostgreSQL Database Service
+  db:
+    image: postgres:15-alpine
+    container_name: opportunity_engine_db
+    restart: always
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: opportunity_engine_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d opportunity_engine_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # 2. Core API Service (NestJS for Users, Jobs, etc.)
+  core-api:
+    build:
+      context: ./core-api
+      dockerfile: Dockerfile
+    container_name: core_api_service
+    restart: always
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./core-api:/app
+      - /app/node_modules # Prevents local node_modules from overwriting container's
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - ./core-api/.env
+
+  # 3. AI Service (Python/FastAPI for ML tasks)
+  ai-service:
+    build:
+      context: ./ai-service
+      dockerfile: Dockerfile
+    container_name: ai_service
+    restart: always
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./ai-service:/app
+    env_file:
+      - ./ai-service/.env
+
+  # 4. Frontend Service (Next.js)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: frontend_app
+    restart: always
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+    depends_on:
+      - core-api
+      - ai-service
+
+volumes:
+  postgres_data:
+    driver: local
