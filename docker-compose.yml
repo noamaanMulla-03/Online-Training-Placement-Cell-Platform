@@ -20,6 +20,9 @@ services:
       POSTGRES_DB: opportunity_engine_db
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      # Mounts the schema.sql file into the container's initialization directory.
+      # It will be executed automatically when the database container is first created.
+      - ./core-api/schema.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
       - "5432:5432"
     healthcheck:
