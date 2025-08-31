@@ -1,0 +1,68 @@
+# =============================================================================
+# The Opportunity Engine - Root .gitignore
+# =============================================================================
+# This file specifies intentionally untracked files to ignore.
+# File path: /.gitignore
+# =============================================================================
+# Dependencies and Build Artifacts
+# ---------------------------------
+# For Node.js (Frontend & Core API)
+node_modules/
+.next/
+dist/
+build/
+npm-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# For Python (AI Service)
+pycache/
+*.pyc
+*.pyo
+*.pyd
+.Python
+venv/
+env/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Environment Variables
+# ---------------------------------
+Ignore all .env files to keep secrets out of version control.
+Only commit the example files.
+.env
+.env.*
+!.env.example
+
+# IDE & Editor Configuration
+# ---------------------------------
+.vscode/
+.idea/
+*.suo
+.ntvs
+*.njsproj
+*.sln
+*.sw?
+
+# Operating System Files
+# ---------------------------------
+macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Log Files
+# ---------------------------------
+*.log
+logs
+.log.
+
+# Docker
+# ---------------------------------
+# Ignore Docker-specific environment files if you use them
+docker-compose.override.yml
