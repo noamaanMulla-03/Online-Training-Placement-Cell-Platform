@@ -1,0 +1,150 @@
+/*
+================================================================================
+| The Opportunity Engine - Design Tokens & Theming Variables                   |
+|------------------------------------------------------------------------------|
+| This file establishes the core design system for the entire application.     |
+| By defining colors, fonts, spacing, and other UI properties as CSS variables,|
+| we can ensure consistency and easily implement features like light/dark mode.|
+|                                                                              |
+| HOW TO USE:                                                                  |
+| 1. Link this CSS file in the <head> of your main HTML document or import it  |
+|    into your global CSS file.                                                |
+| 2. Apply the variables in your CSS or Tailwind CSS configuration, for example:|
+|    `background-color: var(--color-background);`                              |
+|    `font-size: var(--font-size-lg);`                                          |
+================================================================================
+*/
+
+:root {
+  /*
+  ----------------------------------------------------------------------------
+  | FONT & TYPOGRAPHY SYSTEM                                                   |
+  ----------------------------------------------------------------------------
+  | Defines the fonts, sizes, weights, and line heights for consistent text.   |
+  */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-serif: 'Georgia', 'Times New Roman', serif; /* For occasional headings or special text */
+
+  /* Fluid Font Sizes (using clamp for responsiveness) */
+  --font-size-xs: clamp(0.75rem, 0.5vw + 0.6rem, 0.875rem);   /* Extra Small */
+  --font-size-sm: clamp(0.875rem, 0.5vw + 0.7rem, 1rem);      /* Small */
+  --font-size-base: clamp(1rem, 0.5vw + 0.8rem, 1.125rem);    /* Medium (Base) */
+  --font-size-lg: clamp(1.125rem, 1vw + 0.9rem, 1.25rem);     /* Large */
+  --font-size-xl: clamp(1.25rem, 1vw + 1rem, 1.5rem);        /* Extra Large */
+  --font-size-display-sm: clamp(1.875rem, 2vw + 1.2rem, 2.25rem);  /* Display Small */
+  --font-size-display-md: clamp(2.25rem, 3vw + 1.5rem, 3rem);     /* Display Medium */
+  --font-size-display-lg: clamp(3rem, 5vw + 2rem, 4.5rem);        /* Display Large */
+
+  /* Font Weights */
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  /* Line Heights */
+  --line-height-tight: 1.25;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.75;
+
+
+  /*
+  ----------------------------------------------------------------------------
+  | SPACING & SIZING                                                           |
+  ----------------------------------------------------------------------------
+  | A consistent scale for margins, padding, gaps, etc. (based on 4px grid)  |
+  */
+  --spacing-1: 0.25rem;  /* 4px */
+  --spacing-2: 0.5rem;   /* 8px */
+  --spacing-3: 0.75rem;  /* 12px */
+  --spacing-4: 1rem;     /* 16px */
+  --spacing-6: 1.5rem;   /* 24px */
+  --spacing-8: 2rem;     /* 32px */
+  --spacing-12: 3rem;    /* 48px */
+  --spacing-16: 4rem;    /* 64px */
+
+
+  /*
+  ----------------------------------------------------------------------------
+  | LAYOUT & UI ELEMENTS                                                       |
+  ----------------------------------------------------------------------------
+  | Variables for borders, shadows, and transitions for a cohesive UI.       |
+  */
+  --border-radius-sm: 0.25rem; /* Small components like tags */
+  --border-radius-md: 0.5rem;  /* Default for buttons, inputs */
+  --border-radius-lg: 0.75rem; /* Larger cards, modals */
+  --border-radius-xl: 1rem;    /* Profile pictures, layout sections */
+  --border-radius-full: 9999px;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+
+  /* Transitions */
+  --transition-short: all 150ms ease-in-out;
+  --transition-base: all 300ms ease-in-out;
+}
+
+
+/*
+================================================================================
+| COLOR THEMES                                                                 |
+================================================================================
+*/
+
+/* ------------------------- */
+/* --- DARK MODE (DEFAULT) --- */
+/* ------------------------- */
+:root {
+  --color-background: #030712;      /* Deep navy blue */
+  --color-surface: #111827;         /* Dark gray-blue (for cards) */
+  --color-surface-glass: rgba(17, 24, 39, 0.6); /* For glassmorphism */
+
+  --color-text-primary: #f9fafb;     /* Almost white */
+  --color-text-secondary: #9ca3af;   /* Medium gray */
+  --color-text-muted: #4b5563;       /* Dark gray */
+
+  --color-border: rgba(255, 255, 255, 0.1);
+  --color-border-hover: rgba(255, 255, 255, 0.2);
+
+  /* Brand & Accent Colors */
+  --color-primary: #3b82f6;          /* Bright Blue */
+  --color-primary-hover: #2563eb;
+  --color-secondary: #8b5cf6;        /* Purple */
+  --color-accent: #10b981;           /* Green */
+
+  /* State Colors */
+  --color-success: #22c55e;
+  --color-warning: #facc15;
+  --color-error: #ef4444;
+}
+
+
+/* ----------------------- */
+/* --- LIGHT MODE THEME --- */
+/* ----------------------- */
+/* Apply this class to the <html> or <body> tag to switch to light mode */
+.light-mode {
+  --color-background: #f9fafb;      /* Very light gray */
+  --color-surface: #ffffff;         /* White (for cards) */
+  --color-surface-glass: rgba(255, 255, 255, 0.6);
+
+  --color-text-primary: #111827;     /* Dark gray-blue */
+  --color-text-secondary: #4b5563;   /* Medium-dark gray */
+  --color-text-muted: #9ca3af;       /* Medium gray */
+
+  --color-border: rgba(0, 0, 0, 0.1);
+  --color-border-hover: rgba(0, 0, 0, 0.2);
+
+  /* Brand & Accent Colors (can be the same or adjusted for light bg) */
+  --color-primary: #2563eb;          /* Slightly deeper blue for contrast */
+  --color-primary-hover: #1d4ed8;
+  --color-secondary: #7c3aed;        /* Deeper purple */
+  --color-accent: #059669;           /* Deeper green */
+
+  /* State Colors */
+  --color-success: #16a34a;
+  --color-warning: #f59e0b;
+  --color-error: #dc2626;
+}
+
