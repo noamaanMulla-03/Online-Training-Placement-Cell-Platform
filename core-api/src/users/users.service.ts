@@ -2,7 +2,6 @@ import { Injectable, NotFoundException, ConflictException } from '@nestjs/common
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
-import * as bcrypt from 'bcryptjs';
 
 @Injectable()
 export class UsersService {
@@ -15,12 +14,12 @@ export class UsersService {
       throw new ConflictException('Email already exists');
     }
 
-    const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
-    
+    // Remove the bcrypt hashing here - it's already done in AuthService
     const user: User = {
       id: Math.random().toString(36),
       ...createUserDto,
-      password: hashedPassword,
+      // password is already hashed when coming from AuthService
+      password: createUserDto.password,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -53,6 +52,7 @@ export class UsersService {
       throw new NotFoundException('User not found');
     }
 
+    // If password is being updated, it should be hashed by the caller
     this.users[userIndex] = {
       ...this.users[userIndex],
       ...updateUserDto,
