@@ -8,15 +8,112 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { UserCircle, Building2, Mail, Lock, User, Phone, GraduationCap, Briefcase } from 'lucide-react'
 import ParticleBackground from '@/components/three/ParticleBackground'
+import AuthService from '@/services/auth'
+import { useRouter } from 'next/navigation'
 
 export default function AuthForms() {
   const [activeTab, setActiveTab] = useState('login')
   const [userType, setUserType] = useState('student')
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
+  const router = useRouter()
 
-  const handleSubmit = (e, formType) => {
+  // Form state for login
+  const [loginForm, setLoginForm] = useState({
+    email: '',
+    password: ''
+  })
+
+  // Form state for registration
+  const [registerForm, setRegisterForm] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    company: '',
+    password: '',
+    confirmPassword: ''
+  })
+
+  const handleLoginSubmit = async (e) => {
     e.preventDefault()
-    // Handle form submission logic here
-    console.log(`${formType} form submitted for ${userType}`)
+    setLoading(true)
+    setError('')
+    
+    try {
+      await AuthService.login(loginForm.email, loginForm.password)
+      setSuccess('Login successful! Redirecting...')
+      
+      // Redirect based on user role
+      setTimeout(() => {
+        router.push('/dashboard')
+      }, 1000)
+      
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleRegisterSubmit = async (e) => {
+    e.preventDefault()
+    setLoading(true)
+    setError('')
+
+    // Validate password confirmation
+    if (registerForm.password !== registerForm.confirmPassword) {
+      setError('Passwords do not match')
+      setLoading(false)
+      return
+    }
+
+    try {
+      const userData = {
+        email: registerForm.email,
+        password: registerForm.password,
+        role: userType,
+        firstName: registerForm.firstName,
+        lastName: registerForm.lastName,
+        phone: registerForm.phone,
+        ...(userType === 'recruiter' && { company: registerForm.company })
+      }
+
+      await AuthService.register(userData)
+      setSuccess('Registration successful! Please sign in.')
+      setActiveTab('login')
+      
+      // Clear form
+      setRegisterForm({
+        firstName: '',
+        lastName: '',
+        email: '',
+        phone: '',
+        company: '',
+        password: '',
+        confirmPassword: ''
+      })
+      
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleLoginChange = (e) => {
+    setLoginForm({
+      ...loginForm,
+      [e.target.name]: e.target.value
+    })
+  }
+
+  const handleRegisterChange = (e) => {
+    setRegisterForm({
+      ...registerForm,
+      [e.target.name]: e.target.value
+    })
   }
 
   return (
@@ -68,6 +165,18 @@ export default function AuthForms() {
             Connect, Learn, and Grow Your Career
           </p>
         </div>
+
+        {/* Error/Success Messages */}
+        {error && (
+          <div className="mb-4 p-3 rounded-lg bg-red-500/20 border border-red-500/30 text-red-400 text-sm">
+            {error}
+          </div>
+        )}
+        {success && (
+          <div className="mb-4 p-3 rounded-lg bg-green-500/20 border border-green-500/30 text-green-400 text-sm">
+            {success}
+          </div>
+        )}
 
         {/* Enhanced Card with better glass morphism */}
         <Card className="backdrop-blur-xl border-opacity-20 shadow-2xl relative overflow-hidden" 
@@ -156,7 +265,7 @@ export default function AuthForms() {
 
               {/* Login Form */}
               <TabsContent value="login" className="space-y-4">
-                <form onSubmit={(e) => handleSubmit(e, 'login')} className="space-y-4">
+                <form onSubmit={handleLoginSubmit} className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="email" 
                            style={{ color: 'var(--color-text-primary)' }}>
@@ -167,7 +276,10 @@ export default function AuthForms() {
                             style={{ color: 'var(--color-text-muted)' }} />
                       <Input
                         id="email"
+                        name="email"
                         type="email"
+                        value={loginForm.email}
+                        onChange={handleLoginChange}
                         placeholder={`Enter your ${userType} email`}
                         className="pl-10 transition-all duration-300 hover:border-opacity-50 focus:border-opacity-100"
                         style={{
@@ -191,7 +303,10 @@ export default function AuthForms() {
                             style={{ color: 'var(--color-text-muted)' }} />
                       <Input
                         id="password"
+                        name="password"
                         type="password"
+                        value={loginForm.password}
+                        onChange={handleLoginChange}
                         placeholder="Enter your password"
                         className="pl-10 transition-all duration-300 hover:border-opacity-50 focus:border-opacity-100"
                         style={{
@@ -228,20 +343,21 @@ export default function AuthForms() {
 
                   <Button
                     type="submit"
+                    disabled={loading}
                     className="w-full h-11 text-white font-medium transform hover:scale-105 transition-all duration-300"
                     style={{
                       backgroundColor: userType === 'student' ? 'var(--color-primary)' : 'var(--color-secondary)',
                       boxShadow: `0 10px 25px ${userType === 'student' ? 'rgba(59, 130, 246, 0.3)' : 'rgba(139, 92, 246, 0.3)'}`
                     }}
                   >
-                    Sign In as {userType === 'student' ? 'Student' : 'Recruiter'}
+                    {loading ? 'Signing in...' : `Sign In as ${userType === 'student' ? 'Student' : 'Recruiter'}`}
                   </Button>
                 </form>
               </TabsContent>
 
-              {/* Registration Form - Similar enhancements applied */}
+              {/* Registration Form */}
               <TabsContent value="register" className="space-y-4">
-                <form onSubmit={(e) => handleSubmit(e, 'register')} className="space-y-4">
+                <form onSubmit={handleRegisterSubmit} className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="firstName" 
@@ -253,6 +369,9 @@ export default function AuthForms() {
                               style={{ color: 'var(--color-text-muted)' }} />
                         <Input
                           id="firstName"
+                          name="firstName"
+                          value={registerForm.firstName}
+                          onChange={handleRegisterChange}
                           placeholder="First name"
                           className="pl-10 transition-all duration-300"
                           style={{
@@ -273,6 +392,9 @@ export default function AuthForms() {
                       </Label>
                       <Input
                         id="lastName"
+                        name="lastName"
+                        value={registerForm.lastName}
+                        onChange={handleRegisterChange}
                         placeholder="Last name"
                         className="transition-all duration-300"
                         style={{
@@ -287,7 +409,7 @@ export default function AuthForms() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="email" 
+                    <Label htmlFor="registerEmail" 
                            style={{ color: 'var(--color-text-primary)' }}>
                       Email Address
                     </Label>
@@ -295,8 +417,11 @@ export default function AuthForms() {
                       <Mail className="absolute left-3 top-3 h-4 w-4" 
                             style={{ color: 'var(--color-text-muted)' }} />
                       <Input
-                        id="email"
+                        id="registerEmail"
+                        name="email"
                         type="email"
+                        value={registerForm.email}
+                        onChange={handleRegisterChange}
                         placeholder={`Enter your ${userType} email`}
                         className="pl-10 transition-all duration-300"
                         style={{
@@ -320,7 +445,10 @@ export default function AuthForms() {
                              style={{ color: 'var(--color-text-muted)' }} />
                       <Input
                         id="phone"
+                        name="phone"
                         type="tel"
+                        value={registerForm.phone}
+                        onChange={handleRegisterChange}
                         placeholder="Enter your phone number"
                         className="pl-10 transition-all duration-300"
                         style={{
@@ -345,6 +473,9 @@ export default function AuthForms() {
                                    style={{ color: 'var(--color-text-muted)' }} />
                         <Input
                           id="company"
+                          name="company"
+                          value={registerForm.company}
+                          onChange={handleRegisterChange}
                           placeholder="Enter your company name"
                           className="pl-10 transition-all duration-300"
                           style={{
@@ -360,7 +491,7 @@ export default function AuthForms() {
                   )}
 
                   <div className="space-y-2">
-                    <Label htmlFor="password" 
+                    <Label htmlFor="registerPassword" 
                            style={{ color: 'var(--color-text-primary)' }}>
                       Password
                     </Label>
@@ -368,8 +499,11 @@ export default function AuthForms() {
                       <Lock className="absolute left-3 top-3 h-4 w-4" 
                             style={{ color: 'var(--color-text-muted)' }} />
                       <Input
-                        id="password"
+                        id="registerPassword"
+                        name="password"
                         type="password"
+                        value={registerForm.password}
+                        onChange={handleRegisterChange}
                         placeholder="Create a strong password"
                         className="pl-10 transition-all duration-300"
                         style={{
@@ -393,7 +527,10 @@ export default function AuthForms() {
                             style={{ color: 'var(--color-text-muted)' }} />
                       <Input
                         id="confirmPassword"
+                        name="confirmPassword"
                         type="password"
+                        value={registerForm.confirmPassword}
+                        onChange={handleRegisterChange}
                         placeholder="Confirm your password"
                         className="pl-10 transition-all duration-300"
                         style={{
@@ -432,13 +569,14 @@ export default function AuthForms() {
 
                   <Button
                     type="submit"
+                    disabled={loading}
                     className="w-full h-11 text-white font-medium transform hover:scale-105 transition-all duration-300"
                     style={{
                       backgroundColor: userType === 'student' ? 'var(--color-primary)' : 'var(--color-secondary)',
                       boxShadow: `0 10px 25px ${userType === 'student' ? 'rgba(59, 130, 246, 0.3)' : 'rgba(139, 92, 246, 0.3)'}`
                     }}
                   >
-                    Create {userType === 'student' ? 'Student' : 'Recruiter'} Account
+                    {loading ? 'Creating Account...' : `Create ${userType === 'student' ? 'Student' : 'Recruiter'} Account`}
                   </Button>
                 </form>
               </TabsContent>
@@ -454,7 +592,11 @@ export default function AuthForms() {
           }}>
             {activeTab === 'login' ? "Don't have an account? " : "Already have an account? "}
             <button
-              onClick={() => setActiveTab(activeTab === 'login' ? 'register' : 'login')}
+              onClick={() => {
+                setActiveTab(activeTab === 'login' ? 'register' : 'login')
+                setError('')
+                setSuccess('')
+              }}
               className="hover:underline font-medium transition-all transform hover:scale-105 inline-block"
               style={{ 
                 color: 'var(--color-primary)'

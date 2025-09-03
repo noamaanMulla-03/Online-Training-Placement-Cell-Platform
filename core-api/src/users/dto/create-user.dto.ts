@@ -6,4 +6,5 @@ export class CreateUserDto {
   role: 'student' | 'recruiter' | 'admin';
   phone?: string;
   bio?: string;
+  company?: string;
 }

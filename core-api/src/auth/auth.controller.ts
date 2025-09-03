@@ -8,8 +8,18 @@ import {
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { AuthService, UserRole } from './auth.service';
-import { Roles } from './roles.decorator';
-import { RolesGuard } from './roles.guard';
+import { Roles } from './decorators/roles.decorator';
+import { RolesGuard } from './guards/roles.guard';
+
+interface RegisterDto {
+  email: string;
+  password: string;
+  role?: UserRole;
+  firstName: string;
+  lastName: string;
+  phone: string;
+  company?: string;
+}
 
 @Controller('auth')
 export class AuthController {
@@ -21,10 +31,8 @@ export class AuthController {
   }
 
   @Post('register')
-  async register(
-    @Body() body: { email: string; password: string; role?: UserRole },
-  ) {
-    return this.authService.register(body.email, body.password, body.role);
+  async register(@Body() body: RegisterDto) {
+    return this.authService.register(body);
   }
 
   @UseGuards(AuthGuard('jwt'))

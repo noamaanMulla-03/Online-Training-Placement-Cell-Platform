@@ -53,16 +53,24 @@ export class AuthService {
     };
   }
 
-  async register(
-    email: string,
-    password: string,
-    role: UserRole = UserRole.STUDENT,
-  ) {
-    const hashedPassword = await bcrypt.hash(password, 10);
+  async register(userData: {
+    email: string;
+    password: string;
+    role?: UserRole;
+    firstName: string;
+    lastName: string;
+    phone: string;
+    company?: string;
+  }) {
+    const hashedPassword = await bcrypt.hash(userData.password, 10);
     const user = await this.usersService.create({
-      email,
+      email: userData.email,
       password: hashedPassword,
-      role,
+      role: userData.role || UserRole.STUDENT,
+      firstName: userData.firstName,
+      lastName: userData.lastName,
+      phone: userData.phone,
+      company: userData.company,
     });
 
     const { password: _, ...result } = user;
